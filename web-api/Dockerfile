@@ -2,13 +2,14 @@
 FROM python:3.4-alpine
 
 # Set the application directory
+ADD . /app
 WORKDIR /app
 
 RUN pip install -r requirements.txt
 CMD ["python", "app.py"]
 
 # Install our requirements.txt
-ADD requirements.txt /app/requirements.txt
+
 RUN pip install -r requirements.txt
 
 # Copy our code from the current folder to /app inside the container
