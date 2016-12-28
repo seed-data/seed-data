@@ -1,16 +1,15 @@
-# Using official python runtime base image
-FROM python:2.7
+FROM golang:1.7.4
 
-# Set the application directory
-ADD . /app
-WORKDIR /app
+COPY . /go/src/github.com/seed-data/seed-data/web-api
+WORKDIR /go/src/github.com/seed-data/seed-data/web-api
 
-# RUN apt-get update && apt-get install -y python-psycopg2 libpq-dev gcc
-# RUN pip --version
-RUN pip install -r requirements.txt
+RUN go get -v && go build -v
 
-# Make port 80 available for links and/or publish
-EXPOSE 80
-
-# Define our command to be run when launching the container
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:80", "--log-file", "-", "--access-logfile", "-", "--workers", "4", "--keep-alive", "0"]
+CMD [
+  "./main",
+  "-v",
+  "--auto-migrate"
+  "--backfill-from", "https://seed_data.s3.amazonaws.com/seed_data.csv.gz",
+  "--import-workers", "5",
+  "--import-interval", "900s"
+]
