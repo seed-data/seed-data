@@ -1,6 +1,6 @@
 
 clean:
-	docker rmi -f seed-data || true
+	docker-compose rm -f -v || true
 
 build: clean
 	docker-compose build -t seed-data --no-cache .
