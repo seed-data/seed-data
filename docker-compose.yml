@@ -5,9 +5,9 @@ version: '2'
 # We are dividing up the network into public and private subnets
 # to seperate out the public interfaces from the internal services, such as the database, redis cache, etc.
 # ------------------------------
-networks:
-  - front-tier
-  - back-tier
+# networks:
+#   - front-tier
+#   - back-tier
 
 
 # ------------------------------
@@ -27,42 +27,42 @@ services:
     image: redis:alpine
     container_name: redis
     ports: ["6379"]
-    networks:
-      - back-tier
+    # networks:
+    #   - back-tier
 
   db:
     image: postgres:alpine
     container_name: db
     ports: ["5432"]
-    networks:
-      - back-tier
+    # networks:
+    #   - back-tier
     volumes:
       - "db-data:/var/lib/postgresql/data"
 
   worker:
-    build: ./worker/Dockerfile
-    networks:
-      - back-tier
+    build: ./worker
+    # networks:
+    #   - back-tier
 
   api:
-    build: ./web-api/Dockerfile
+    build: ./web-api
     container_name: 'api'
     ports:
       - "5000:80"
     volumes:
       - ./web-api:/app
-    networks:
-      - front-tier
-      - back-tier
+    # networks:
+    #   - front-tier
+    #   - back-tier
 
   web:
-    build: ./web-frontend/Dockerfile
+    build: ./web-frontend
     container_name: 'frontend'
     ports:
       - "5001:80"
       - "5858:5858"
     volumes:
       - ./web-frontend:/app
-    networks:
-      - front-tier
-      - back-tier
+    # networks:
+    #   - front-tier
+    #   - back-tier
