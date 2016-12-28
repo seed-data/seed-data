@@ -1,19 +1,13 @@
 # Using official python runtime base image
-FROM python:3.4-alpine
+FROM python:2.7
 
 # Set the application directory
 ADD . /app
 WORKDIR /app
 
+# RUN apt-get update && apt-get install -y python-psycopg2 libpq-dev gcc
+# RUN pip --version
 RUN pip install -r requirements.txt
-CMD ["python", "app.py"]
-
-# Install our requirements.txt
-
-RUN pip install -r requirements.txt
-
-# Copy our code from the current folder to /app inside the container
-ADD . /app
 
 # Make port 80 available for links and/or publish
 EXPOSE 80
