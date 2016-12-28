@@ -92,3 +92,5 @@ ENV/
 bin/
 obj/
 
+db-data/
+db-data
