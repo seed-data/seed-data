@@ -7,7 +7,7 @@ COPY . /app
 
 # Install the packages we need
 RUN npm install
-RUN npm install pushstate-server
+RUN npm install -g pushstate-server
 
 # Build the server for production mode,
 # this creates the /app/build folder with the compiled assets we need
@@ -18,4 +18,4 @@ EXPOSE 80
 
 # Start a new instance of the server from /app/build on port 80:
 # http://docker_ip:80
-CMD ./node_modules/.bin/pushstate-server build 80
+CMD pushstate-server build 80
