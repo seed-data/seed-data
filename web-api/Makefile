@@ -3,7 +3,7 @@ clean:
 	docker rmi -f web-api || true
 
 build: clean
-	docker build -f -t web-api --no-cache .
+	docker build -t web-api --no-cache .
 
 stop:
 	docker stop web-api
