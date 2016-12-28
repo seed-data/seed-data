@@ -38,6 +38,7 @@ services:
     #   - back-tier
     volumes:
       - "./db-data:/var/lib/postgresql/data"
+      - "./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
 
   worker:
     build: ./worker
