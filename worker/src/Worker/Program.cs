@@ -95,7 +95,7 @@ namespace Worker {
             var command = connection.CreateCommand();
             try {
                 command.CommandText = "INSERT INTO quotes (id, quote) VALUES (@id, @quote)";
-                command.Parameters.AddWithValue("@id", quoterId);
+                command.Parameters.AddWithValue("@id", quoteId);
                 command.Parameters.AddWithValue("@quote", quote);
                 command.ExecuteNonQuery();
             } catch (DbException) {
