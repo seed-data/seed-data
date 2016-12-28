@@ -13,8 +13,8 @@ version: '2'
 # ------------------------------
 # Volumes to attach to the project
 # ------------------------------
-volumes:
-  db-data:
+# volumes:
+#   db-data:
 
 
 # ------------------------------
@@ -37,7 +37,7 @@ services:
     # networks:
     #   - back-tier
     volumes:
-      - "db-data:/var/lib/postgresql/data"
+      - "./db-data:/var/lib/postgresql/data"
 
   worker:
     build: ./worker
