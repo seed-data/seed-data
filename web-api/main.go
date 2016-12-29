@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	redis "gopkg.in/redis.v5"
 	cli "gopkg.in/urfave/cli.v1"
 )
 
@@ -32,9 +34,21 @@ func checkError(err error) {
 }
 
 func dbConnection() *gorm.DB {
-	db, err := gorm.Open("postgres", "host=localhost user=docker dbname=docker password=docker sslmode=disable")
+	db, err := gorm.Open("postgres", "host=db user=docker dbname=docker password=docker sslmode=disable")
 	checkError(err)
 	return db
+}
+
+func redisConnection() *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	pong, err := client.Ping().Result()
+	checkError(err)
+	fmt.Debugf("Redis ping=%v\n", pong)
+	return client
 }
 
 func main() {
@@ -153,32 +167,19 @@ func runMain(opts Opts, context *cli.Context) error {
 	}()
 
 	// Create the router
-	router := mux.NewRouter()
-	// Helper method to memoize the handler functions and pass in a db instance
-	addGet := func(path string, handler func(*gorm.DB, http.ResponseWriter, *http.Request)) {
-		f := func(rw http.ResponseWriter, req *http.Request) {
-			db := dbConnection()
-			defer db.Close()
-			handler(db, rw, req)
-		}
-		router.HandleFunc(path, f).Methods("GET")
-	}
-	addGet("/", routes.HelloWorldHandler)
-	addGet("/health-check.json", routes.HealthCheckHandler)
-	addGet("/status.json", routes.StatuHandler)
-	addGet("/symbols.json", routes.GetSymbolsHandler)
-	addGet("/symbols/{id}.json", routes.GetSymbolHandler)
-	addGet("/contracts.json", routes.GetContractsHandler)
-	addGet("/contracts/{id}.json", routes.GetContractHandler)
-
+	router := routes.NewRouter(
+		dbConnection,
+		redisConnection,
+	)
+	handler := router.Handler()
 	// This will serve files under http://localhost:80/static/<filename>
-	router.
+	handler.
 		PathPrefix("/static/").
 		Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 
 	// Create the new server & attach the mux router
 	server := &http.Server{
-		Handler: router,
+		Handler: handler,
 		Addr:    "127.0.0.1:80",
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
